@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Мои заказы{% endblock %}
+
+{% block content %}
+<h1>Мои заказы</h1>
+
+{% for order in orders %}
+    <div class="card order-card">
+        <div>
+            <h3>Заказ №{{ order.id }}</h3>
+            <div class="gray-text">{{ order.created_at|date:"d.m.Y H:i" }}</div>
+            <ul>
+                {% for item in order.items.all %}
+                    <li>{{ item.book.title }} × {{ item.quantity }} — {{ item.price }} сом.</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="order-total">
+            <span class="price">{{ order.total }} <small>сом.</small></span>
+            {% if order.is_paid %}
+                <span class="badge green">✓ Оплачено</span>
+            {% else %}
+                <a href="{% url 'pay_order' order.id %}" class="btn green">💳 Оплатить</a>
+            {% endif %}
+        </div>
+    </div>
+{% empty %}
+    <div class="card empty">
+        <div class="icon">📦</div>
+        <h3>Заказов пока нет</h3>
+        <a href="{% url 'book_list' %}" class="btn gold">Выбрать книги</a>
+    </div>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Книги{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Найди свою книгу</h1>
+    <p>Классика, поэзия, романы и философия — всё в одной библиотеке. Выбирай, читай отзывы и покупай в один клик.</p>
+    <form method="get" class="search">
+        <input type="text" name="q" value="{{ q }}" placeholder="Название книги или имя автора...">
+        <button type="submit" class="btn gold">Найти</button>
+    </form>
+</div>
+
+<div class="page-head">
+    <h2>Каталог</h2>
+    {% if user.is_staff %}
+        <a href="{% url 'book_create' %}" class="btn gold">+ Добавить книгу</a>
+    {% endif %}
+</div>
+
+<form method="get" class="card filter">
+    <input type="hidden" name="q" value="{{ q }}">
+
+    <select name="category">
+        <option value="">Все категории</option>
+        {% for c in categories %}
+            <option value="{{ c.id }}" {% if category == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="author">
+        <option value="">Все авторы</option>
+        {% for a in authors %}
+            <option value="{{ a.id }}" {% if author == a.id|stringformat:"s" %}selected{% endif %}>{{ a.full_name }}</option>
+        {% endfor %}
+    </select>
+
+    <input type="number" name="price_min" value="{{ price_min }}" placeholder="Цена от" step="0.01">
+    <input type="number" name="price_max" value="{{ price_max }}" placeholder="Цена до" step="0.01">
+    <input type="number" name="year" value="{{ year }}" placeholder="Год издания">
+
+    <select name="sort">
+        <option value="">Сначала новые</option>
+        <option value="price" {% if sort == "price" %}selected{% endif %}>Сначала дешёвые</option>
+        <option value="-price" {% if sort == "-price" %}selected{% endif %}>Сначала дорогие</option>
+        <option value="year" {% if sort == "year" %}selected{% endif %}>Год: старые</option>
+        <option value="-year" {% if sort == "-year" %}selected{% endif %}>Год: новые</option>
+        <option value="-rating" {% if sort == "-rating" %}selected{% endif %}>Высокий рейтинг</option>
+        <option value="rating" {% if sort == "rating" %}selected{% endif %}>Низкий рейтинг</option>
+    </select>
+
+    <label class="check"><input type="checkbox" name="in_stock" value="1" {% if in_stock %}checked{% endif %}> Только в наличии</label>
+
+    <div class="filter-buttons">
+        <button type="submit" class="btn">Применить</button>
+        <a href="{% url 'book_list' %}" class="btn gray">Сбросить</a>
+    </div>
+</form>
+
+{% if filtered_stats %}
+    <div class="message">Найдено книг: <b>{{ filtered_stats.count }}</b> · Средняя цена: <b>{{ filtered_stats.avg_price|floatformat:2|default:"0" }} сом.</b></div>
+{% endif %}
+
+{% if page_obj %}
+    <div class="book-grid">
+        {% for book in page_obj %}
+            <div class="book-card">
+                <a href="{% url 'book_detail' book.id %}" class="cover {% cycle 'c1' 'c2' 'c3' 'c4' 'c5' 'c6' %}">
+                    <span class="letter">{{ book.title|slice:":1" }}</span>
+                    <span class="cover-title">{{ book.title }}</span>
+                    <span class="cover-author">{{ book.author.full_name }}</span>
+                </a>
+                <div class="book-body">
+                    <h3><a href="{% url 'book_detail' book.id %}">{{ book.title }}</a></h3>
+                    <div class="gray-text">{{ book.author.full_name }} · {{ book.published_year }}</div>
+                    <div class="chips">
+                        {% for c in book.categories.all %}
+                            <a href="{% url 'category_detail' c.id %}" class="chip">{{ c.name }}</a>
+                        {% endfor %}
+                    </div>
+                    <div>
+                        <span class="stars">★ {{ book.avg_rating|floatformat:1|default:"—" }}</span>
+                        <span class="gray-text">· {{ book.reviews_count }} отзывов</span>
+                    </div>
+                    <div class="book-foot">
+                        <span class="price">{{ book.price }} <small>сом.</small></span>
+                        {% if book.in_stock %}
+                            <a href="{% url 'add_to_cart' book.id %}" class="btn gold small-btn">В корзину</a>
+                        {% else %}
+                            <span class="badge red">Нет в наличии</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}&{{ params }}">← Назад</a>
+        {% endif %}
+        <span>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&{{ params }}">Вперёд →</a>
+        {% endif %}
+    </div>
+{% else %}
+    <div class="card empty">
+        <div class="icon">📖</div>
+        <h3>Книги не найдены</h3>
+        <p>Попробуйте изменить фильтры или поиск.</p>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Магазин{% endblock %} — E-Shop</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<div class="nav">
+    <a class="logo" href="{% url 'product_list' %}">E<span>-</span>Shop</a>
+    <a href="{% url 'product_list' %}">Продукты</a>
+    <a href="{% url 'category_list' %}">Категории</a>
+    <a href="{% url 'user_list' %}">Продавцы</a>
+    <a href="{% url 'review_list' %}">Отзывы</a>
+    <a href="{% url 'statistics' %}">Статистика</a>
+
+    <div class="right">
+        {% if user.is_authenticated %}
+            {% if user.is_staff %}
+                <a class="admin-link" href="{% url 'sales' %}">Продажи</a>
+                <a class="admin-link" href="/admin/">Админка</a>
+            {% endif %}
+            <a href="{% url 'my_products' %}">Мои продукты</a>
+            <a href="{% url 'cart' %}">🛒 Корзина</a>
+            <a href="{% url 'my_orders' %}">Мои заказы</a>
+            <span class="user">👤 {{ user.username }} · ID {{ user.id }}</span>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-link">Выйти</button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}">Войти</a>
+            <a class="nav-btn" href="{% url 'register' %}">Регистрация</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container">
+    {% for message in messages %}
+        <div class="message {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+
+    {% block content %}{% endblock %}
+</div>
+
+<div class="footer">© E-Shop · Магазин продуктов на Django</div>
+
+</body>
+</html>

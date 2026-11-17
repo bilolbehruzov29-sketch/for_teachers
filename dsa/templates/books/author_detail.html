@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}{{ author.full_name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>{{ author.full_name }}</h1>
+    <p><b>Страна:</b> {{ author.country }}</p>
+    <p><b>Год рождения:</b> {{ author.birth_year }}</p>
+    {% if author.bio %}<p>{{ author.bio }}</p>{% endif %}
+
+    {% if user.is_staff %}
+        <a href="{% url 'author_update' author.id %}" class="btn gray">Изменить</a>
+        <a href="{% url 'author_delete' author.id %}" class="btn red">Удалить</a>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>Книги автора</h2>
+    <table>
+        <tr><th>Название</th><th>Категории</th><th>Год</th><th>Цена</th></tr>
+        {% for book in author.books.all %}
+        <tr>
+            <td><a href="{% url 'book_detail' book.id %}">{{ book.title }}</a></td>
+            <td>{% for c in book.categories.all %}{{ c.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+            <td>{{ book.published_year }}</td>
+            <td>{{ book.price }} сом.</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">Книг нет</td></tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

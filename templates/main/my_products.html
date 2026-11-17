@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Мои продукты{% endblock %}
+
+{% block content %}
+<h1>Мои продукты</h1>
+
+<a href="{% url 'product_create' %}" class="btn gold">+ Добавить продукт</a>
+
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Название</th>
+        <th>Категория</th>
+        <th>Количество</th>
+        <th>Цена</th>
+        <th>Отзывов</th>
+        <th></th>
+    </tr>
+    {% for product in products %}
+    <tr>
+        <td><span class="badge">{{ product.id }}</span></td>
+        <td><a href="{% url 'product_detail' product.id %}">{{ product.name }}</a></td>
+        <td>{{ product.category.name }} <span class="gray-text">(ID {{ product.category_id }})</span></td>
+        <td>{{ product.quantity }} шт.</td>
+        <td>{{ product.price }} сом.</td>
+        <td>{{ product.reviews_count }}</td>
+        <td>
+            <a href="{% url 'product_update' product.id %}">Изменить</a>
+            <a href="{% url 'product_delete' product.id %}" class="red-text">Удалить</a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="7">Вы ещё не добавили продукты</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

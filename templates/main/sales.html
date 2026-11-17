@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Продажи{% endblock %}
+
+{% block content %}
+<h1>Продажи</h1>
+
+<div class="stats-grid">
+    <div class="stat dark"><span>Всего заработано</span><b>{{ total_money }} сом.</b></div>
+</div>
+
+<table>
+    <tr>
+        <th>Заказ</th>
+        <th>Дата</th>
+        <th>Клиент (ID)</th>
+        <th>Продукт (ID)</th>
+        <th>Количество</th>
+        <th>Цена</th>
+        <th>Оплата</th>
+    </tr>
+    {% for item in items %}
+    <tr>
+        <td>№{{ item.order_id }}</td>
+        <td class="gray-text">{{ item.order.created_at|date:"d.m.Y H:i" }}</td>
+        <td><b>👤 {{ item.order.user.username }}</b> ({{ item.order.user_id }})</td>
+        <td><a href="{% url 'product_detail' item.product_id %}">{{ item.product.name }}</a> ({{ item.product_id }})</td>
+        <td>{{ item.quantity }} шт.</td>
+        <td>{{ item.price }} сом.</td>
+        <td>
+            {% if item.order.is_paid %}
+                <span class="badge green">Оплачено</span>
+            {% else %}
+                <span class="badge red">Не оплачено</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="7" class="gray-text">Покупок пока нет</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

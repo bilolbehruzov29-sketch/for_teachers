@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{{ seller.username }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>👤 {{ seller.username }}</h1>
+    <p><b>ID пользователя:</b> {{ seller.id }}</p>
+    <p><b>Дата регистрации:</b> {{ seller.date_joined|date:"d.m.Y" }}</p>
+</div>
+
+<div class="card">
+    <h2>Продукты пользователя</h2>
+    <table>
+        <tr><th>ID</th><th>Название</th><th>Категория (ID)</th><th>Количество</th><th>Цена</th></tr>
+        {% for product in seller.products.all %}
+        <tr>
+            <td><span class="badge">{{ product.id }}</span></td>
+            <td><a href="{% url 'product_detail' product.id %}">{{ product.name }}</a></td>
+            <td>{{ product.category.name }} ({{ product.category_id }})</td>
+            <td>{{ product.quantity }} шт.</td>
+            <td>{{ product.price }} сом.</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">Продуктов нет</td></tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

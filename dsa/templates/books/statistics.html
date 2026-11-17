@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Статистика{% endblock %}
+
+{% block content %}
+<h1>Статистика библиотеки</h1>
+
+<div class="stats-grid">
+    <div class="stat dark"><span>Всего книг</span><b>{{ stats.total_books }}</b></div>
+    <div class="stat"><span>Средняя цена</span><b>{{ stats.avg_price|floatformat:2|default:"0" }}</b></div>
+    <div class="stat"><span>Самая дорогая</span><b>{{ stats.max_price|default:"0" }}</b></div>
+    <div class="stat"><span>Самая дешёвая</span><b>{{ stats.min_price|default:"0" }}</b></div>
+    <div class="stat"><span>Стоимость всех книг</span><b>{{ stats.total_price|default:"0" }}</b></div>
+    <div class="stat"><span>Всего страниц</span><b>{{ stats.total_pages|default:"0" }}</b></div>
+    <div class="stat"><span>Средняя оценка</span><b>★ {{ avg_rating|floatformat:2|default:"—" }}</b></div>
+    <div class="stat dark"><span>В наличии</span><b>{{ in_stock }}</b></div>
+</div>
+
+<div class="two-cols">
+    <div class="card">
+        <h2>Топ-5 авторов</h2>
+        <ol class="rank">
+            {% for author in top_authors %}
+                <li><a href="{% url 'author_detail' author.id %}">{{ author.full_name }}</a><span class="right">{{ author.books_count }} книг</span></li>
+            {% empty %}
+                <p class="gray-text">Нет данных</p>
+            {% endfor %}
+        </ol>
+    </div>
+
+    <div class="card">
+        <h2>Топ-5 книг по рейтингу</h2>
+        <ol class="rank">
+            {% for book in top_books %}
+                <li><a href="{% url 'book_detail' book.id %}">{{ book.title }}</a><span class="right stars">★ {{ book.avg_rating|floatformat:1 }}</span></li>
+            {% empty %}
+                <p class="gray-text">Нет данных</p>
+            {% endfor %}
+        </ol>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Книги с рейтингом выше 4</h2>
+    <div class="chips">
+        {% for book in good_books %}
+            <a href="{% url 'book_detail' book.id %}" class="chip">{{ book.title }} · ★ {{ book.avg_rating|floatformat:1 }}</a>
+        {% empty %}
+            <p class="gray-text">Таких книг пока нет</p>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="card">
+    <h2>Последние 5 отзывов</h2>
+    <table>
+        <tr><th>Книга</th><th>Автор книги</th><th>Имя</th><th>Оценка</th><th>Отзыв</th></tr>
+        {% for review in last_reviews %}
+        <tr>
+            <td><a href="{% url 'book_detail' review.book.id %}">{{ review.book.title }}</a></td>
+            <td>{{ review.book.author.full_name }}</td>
+            <td>{{ review.reviewer_name }}</td>
+            <td class="stars">★ {{ review.rating }}</td>
+            <td>{{ review.comment|truncatechars:40 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="gray-text">Отзывов нет</td></tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

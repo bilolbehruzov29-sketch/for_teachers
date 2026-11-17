@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block content %}
+<div class="card detail">
+    <div class="cover c1">
+        <span class="letter">{{ book.title|slice:":1" }}</span>
+        <span class="cover-title">{{ book.title }}</span>
+        <span class="cover-author">{{ book.author.full_name }}</span>
+    </div>
+
+    <div>
+        <div class="chips">
+            {% for c in book.categories.all %}
+                <a href="{% url 'category_detail' c.id %}" class="chip">{{ c.name }}</a>
+            {% endfor %}
+        </div>
+        <h1>{{ book.title }}</h1>
+        <p>Автор: <a href="{% url 'author_detail' book.author.id %}">{{ book.author.full_name }}</a></p>
+
+        <div class="info-grid">
+            <div class="info"><span>Цена</span><b>{{ book.price }} сом.</b></div>
+            <div class="info"><span>Рейтинг</span><b class="stars">★ {{ avg_rating|floatformat:1|default:"—" }}</b></div>
+            <div class="info"><span>Страниц</span><b>{{ book.pages }}</b></div>
+            <div class="info"><span>Год издания</span><b>{{ book.published_year }}</b></div>
+            <div class="info"><span>Наличие</span>
+                {% if book.in_stock %}<b class="green-text">Есть</b>{% else %}<b class="red-text">Нет</b>{% endif %}
+            </div>
+            <div class="info"><span>Добавлена</span><b>{{ book.created_at|date:"d.m.Y" }}</b></div>
+        </div>
+
+        <div class="actions">
+            {% if book.in_stock %}
+                <a href="{% url 'add_to_cart' book.id %}" class="btn gold">🛒 Добавить в корзину</a>
+            {% endif %}
+            {% if user.is_staff %}
+                <a href="{% url 'book_update' book.id %}" class="btn gray">Изменить</a>
+                <a href="{% url 'book_delete' book.id %}" class="btn red">Удалить</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="two-cols">
+    <div class="card">
+        <h2>Отзывы читателей</h2>
+        {% for review in book.reviews.all %}
+            <div class="review">
+                <div class="review-head">
+                    <div class="avatar">{{ review.reviewer_name|slice:":1" }}</div>
+                    <div>
+                        <b>{{ review.reviewer_name }}</b>
+                        <div class="gray-text">{{ review.created_at|date:"d.m.Y" }}</div>
+                    </div>
+                    <span class="stars" style="margin-left:auto">★ {{ review.rating }}/5</span>
+                </div>
+                <p>{{ review.comment }}</p>
+            </div>
+        {% empty %}
+            <div class="empty">
+                <div class="icon">💬</div>
+                <p>Отзывов пока нет. Будьте первым!</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <h2>Оставить отзыв</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn gold">Отправить отзыв</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

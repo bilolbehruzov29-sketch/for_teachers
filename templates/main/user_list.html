@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Продавцы{% endblock %}
+
+{% block content %}
+<h1>Продавцы</h1>
+
+<form method="get" class="card search-row">
+    <input type="text" name="q" value="{{ q }}" placeholder="Имя пользователя">
+    <button type="submit" class="btn">Найти</button>
+</form>
+
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Имя</th>
+        <th>Продуктов</th>
+        <th>Средняя цена</th>
+        <th>Дата регистрации</th>
+    </tr>
+    {% for u in users %}
+    <tr>
+        <td><span class="badge">{{ u.id }}</span></td>
+        <td><a href="{% url 'user_detail' u.id %}">{{ u.username }}</a></td>
+        <td>{{ u.products_count }}</td>
+        <td>{{ u.avg_price|floatformat:2|default:"-" }}</td>
+        <td class="gray-text">{{ u.date_joined|date:"d.m.Y" }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">Пользователей нет</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

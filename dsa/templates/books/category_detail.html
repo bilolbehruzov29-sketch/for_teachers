@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>{{ category.name }}</h1>
+    <p>{{ category.description }}</p>
+
+    {% if user.is_staff %}
+        <a href="{% url 'category_update' category.id %}" class="btn gray">Изменить</a>
+        <a href="{% url 'category_delete' category.id %}" class="btn red">Удалить</a>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>Книги</h2>
+    <table>
+        <tr><th>Название</th><th>Автор</th><th>Цена</th></tr>
+        {% for book in books %}
+        <tr>
+            <td><a href="{% url 'book_detail' book.id %}">{{ book.title }}</a></td>
+            <td>{{ book.author.full_name }}</td>
+            <td>{{ book.price }} сом.</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3">В этой категории нет книг</td></tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

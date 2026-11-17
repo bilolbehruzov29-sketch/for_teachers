@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Отзыв{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1>Отзыв на продукт "{{ review.product.name }}"</h1>
+    <p><b>ID отзыва:</b> {{ review.id }}</p>
+    <p><b>ID продукта:</b> {{ review.product_id }}</p>
+    <p><b>Пользователь:</b> {{ review.user.username }} (ID {{ review.user_id }})</p>
+    <p><b>Оценка:</b> {{ review.rating }}/5</p>
+    <p><b>Дата:</b> {{ review.created_at|date:"d.m.Y H:i" }}</p>
+    <p>{{ review.comment }}</p>
+
+    <a href="{% url 'product_detail' review.product_id %}" class="btn gray">К продукту</a>
+    {% if review.user == user or user.is_staff %}
+        <a href="{% url 'review_update' review.id %}" class="btn gray">Изменить</a>
+        <a href="{% url 'review_delete' review.id %}" class="btn red">Удалить</a>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Статистика{% endblock %}
+
+{% block content %}
+<h1>Статистика магазина</h1>
+
+<div class="stats-grid">
+    <div class="stat dark"><span>Всего продуктов</span><b>{{ stats.total_products }}</b></div>
+    <div class="stat"><span>Средняя цена</span><b>{{ stats.avg_price|floatformat:2|default:"0" }}</b></div>
+    <div class="stat"><span>Самый дорогой</span><b>{{ stats.max_price|default:"0" }}</b></div>
+    <div class="stat"><span>Самый дешёвый</span><b>{{ stats.min_price|default:"0" }}</b></div>
+    <div class="stat"><span>Сумма всех цен</span><b>{{ stats.total_price|default:"0" }}</b></div>
+    <div class="stat"><span>Всего штук</span><b>{{ stats.total_quantity|default:"0" }}</b></div>
+    <div class="stat"><span>Средняя оценка</span><b>★ {{ avg_rating|floatformat:2|default:"—" }}</b></div>
+    <div class="stat dark"><span>В наличии</span><b>{{ in_stock }}</b></div>
+</div>
+
+<div class="two-cols">
+    <div class="card">
+        <h2>Топ-5 продавцов</h2>
+        <ol class="rank">
+            {% for u in top_users %}
+                <li><a href="{% url 'user_detail' u.id %}">{{ u.username }}</a> <span class="gray-text">ID {{ u.id }}</span><span class="right">{{ u.products_count }} продуктов</span></li>
+            {% empty %}
+                <p class="gray-text">Нет данных</p>
+            {% endfor %}
+        </ol>
+    </div>
+
+    <div class="card">
+        <h2>Топ-5 продуктов по рейтингу</h2>
+        <ol class="rank">
+            {% for product in top_products %}
+                <li><a href="{% url 'product_detail' product.id %}">{{ product.name }}</a> <span class="gray-text">ID {{ product.id }}</span><span class="right stars">★ {{ product.avg_rating|floatformat:1 }}</span></li>
+            {% empty %}
+                <p class="gray-text">Нет данных</p>
+            {% endfor %}
+        </ol>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Продукты с рейтингом выше 4</h2>
+    <div class="chips">
+        {% for product in good_products %}
+            <a href="{% url 'product_detail' product.id %}" class="chip">ID {{ product.id }} · {{ product.name }} · ★ {{ product.avg_rating|floatformat:1 }}</a>
+        {% empty %}
+            <p class="gray-text">Таких продуктов пока нет</p>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="card">
+    <h2>Последние 5 отзывов</h2>
+    <table>
+        <tr><th>ID</th><th>Продукт</th><th>Пользователь</th><th>Оценка</th><th>Отзыв</th></tr>
+        {% for review in last_reviews %}
+        <tr>
+            <td>{{ review.id }}</td>
+            <td><a href="{% url 'product_detail' review.product_id %}">{{ review.product.name }}</a></td>
+            <td>{{ review.user.username }} ({{ review.user_id }})</td>
+            <td class="stars">★ {{ review.rating }}</td>
+            <td>{{ review.comment|truncatechars:40 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="gray-text">Отзывов нет</td></tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

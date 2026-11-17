@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="card detail">
+    <div class="cover c1">
+        <span class="letter">{{ product.name|slice:":1" }}</span>
+        <span class="cover-title">{{ product.name }}</span>
+        <span class="cover-author">ID {{ product.id }}</span>
+    </div>
+
+    <div>
+        <div class="chips">
+            <a href="{% url 'category_detail' product.category_id %}" class="chip">{{ product.category.name }}</a>
+        </div>
+        <h1>{{ product.name }}</h1>
+        <p>Продавец: <a href="{% url 'user_detail' product.user_id %}">{{ product.user.username }}</a></p>
+
+        <div class="info-grid">
+            <div class="info"><span>ID продукта</span><b>{{ product.id }}</b></div>
+            <div class="info"><span>ID пользователя</span><b>{{ product.user_id }}</b></div>
+            <div class="info"><span>ID категории</span><b>{{ product.category_id }}</b></div>
+            <div class="info"><span>Цена</span><b>{{ product.price }} сом.</b></div>
+            <div class="info"><span>Количество</span>
+                {% if product.quantity > 0 %}<b class="green-text">{{ product.quantity }} шт.</b>{% else %}<b class="red-text">Нет</b>{% endif %}
+            </div>
+            <div class="info"><span>Рейтинг</span><b class="stars">★ {{ avg_rating|floatformat:1|default:"—" }}</b></div>
+        </div>
+
+        {% if product.description %}<p>{{ product.description|linebreaksbr }}</p>{% endif %}
+        <p class="gray-text">Добавлен {{ product.created_at|date:"d.m.Y H:i" }}</p>
+
+        <div class="actions">
+            {% if product.quantity > 0 %}
+                <a href="{% url 'add_to_cart' product.id %}" class="btn gold">🛒 Добавить в корзину</a>
+            {% endif %}
+            {% if product.user == user or user.is_staff %}
+                <a href="{% url 'product_update' product.id %}" class="btn gray">Изменить</a>
+                <a href="{% url 'product_delete' product.id %}" class="btn red">Удалить</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="two-cols">
+    <div class="card">
+        <h2>Отзывы покупателей</h2>
+        {% for review in product.reviews.all %}
+            <div class="review">
+                <div class="review-head">
+                    <div class="avatar">{{ review.user.username|slice:":1" }}</div>
+                    <div>
+                        <b>{{ review.user.username }}</b> <span class="gray-text">ID {{ review.user_id }}</span>
+                        <div class="gray-text">Отзыв №{{ review.id }} · {{ review.created_at|date:"d.m.Y" }}</div>
+                    </div>
+                    <span class="stars" style="margin-left:auto">★ {{ review.rating }}/5</span>
+                </div>
+                <p>{{ review.comment }}</p>
+            </div>
+        {% empty %}
+            <div class="empty">
+                <div class="icon">💬</div>
+                <p>Отзывов пока нет. Будьте первым!</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <h2>Оставить отзыв</h2>
+        {% if user.is_authenticated %}
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn gold">Отправить отзыв</button>
+            </form>
+        {% else %}
+            <p><a href="{% url 'login' %}">Войдите</a>, чтобы оставить отзыв.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

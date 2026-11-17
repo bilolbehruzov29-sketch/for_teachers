@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Отзывы{% endblock %}
+
+{% block content %}
+<h1>Отзывы</h1>
+
+{% if user.is_authenticated %}
+    <a href="{% url 'review_create' %}" class="btn gold">+ Написать отзыв</a>
+{% endif %}
+
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Продукт (ID)</th>
+        <th>Пользователь (ID)</th>
+        <th>Оценка</th>
+        <th>Отзыв</th>
+        <th></th>
+    </tr>
+    {% for review in reviews %}
+    <tr>
+        <td><span class="badge">{{ review.id }}</span></td>
+        <td><a href="{% url 'product_detail' review.product_id %}">{{ review.product.name }}</a> ({{ review.product_id }})</td>
+        <td>{{ review.user.username }} ({{ review.user_id }})</td>
+        <td>{{ review.rating }}/5</td>
+        <td><a href="{% url 'review_detail' review.id %}">{{ review.comment|truncatechars:40 }}</a></td>
+        <td>
+            {% if review.user == user or user.is_staff %}
+                <a href="{% url 'review_update' review.id %}">Изменить</a>
+                <a href="{% url 'review_delete' review.id %}" class="red-text">Удалить</a>
+            {% endif %}
+        </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="6">Отзывов нет</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

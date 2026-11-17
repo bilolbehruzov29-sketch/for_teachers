@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Отзывы{% endblock %}
+
+{% block content %}
+<h1>Отзывы</h1>
+
+<a href="{% url 'review_create' %}" class="btn gold">+ Написать отзыв</a>
+
+<table>
+    <tr>
+        <th>Книга</th>
+        <th>Автор книги</th>
+        <th>Имя</th>
+        <th>Оценка</th>
+        <th>Отзыв</th>
+        {% if user.is_staff %}<th></th>{% endif %}
+    </tr>
+    {% for review in reviews %}
+    <tr>
+        <td><a href="{% url 'book_detail' review.book.id %}">{{ review.book.title }}</a></td>
+        <td>{{ review.book.author.full_name }}</td>
+        <td>{{ review.reviewer_name }}</td>
+        <td>{{ review.rating }}/5</td>
+        <td><a href="{% url 'review_detail' review.id %}">{{ review.comment|truncatechars:40 }}</a></td>
+        {% if user.is_staff %}
+        <td>
+            <a href="{% url 'review_update' review.id %}">Изменить</a>
+            <a href="{% url 'review_delete' review.id %}" class="red-text">Удалить</a>
+        </td>
+        {% endif %}
+    </tr>
+    {% empty %}
+    <tr><td colspan="6">Отзывов нет</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}
